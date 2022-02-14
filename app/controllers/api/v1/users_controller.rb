@@ -5,12 +5,15 @@ class Api::V1::UsersController < ApplicationController
   def index
     @users = User.all
 
-    render json: @users
+    serializedUsers = UserSerializer.new(@users).serializable_hash.to_json
+
+    render json: serializedUsers
   end
 
   # GET /users/1
   def show
-    render json: @user
+    serializedUser = UserSerializer.new(@user).serializable_hash.to_json
+    render json: serializedUser
   end
 
   # POST /users
@@ -18,18 +21,27 @@ class Api::V1::UsersController < ApplicationController
     @user = User.new(user_params)
 
     if @user.save
-      render json: @user, status: :created, location: @user
+      session[:user_id] = @user.id
+      user_json = UserSerializer.new(@user).serializable_hash.to_json
+      render json: user_json, status: :created
     else
-      render json: @user.errors, status: :unprocessable_entity
+      error_resp = {
+        error: @user.errors.full_message.to_sentence
+      }
+      render json: error_resp, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /users/1
   def update
     if @user.update(user_params)
-      render json: @user
+      serializedUser = UserSerializer.new(@user).serializable_hash.to_json
+      render json: serializedUser
     else
-      render json: @user.errors, status: :unprocessable_entity
+      error_resp = {
+        error: @user.errors.full_message.to_sentence
+      }
+      render json: error_resp, status: :unprocessable_entity
     end
   end
 
