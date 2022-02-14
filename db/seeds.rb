@@ -7,6 +7,9 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 User.destroy_all
+Product.destroy_all
 
 User.create(name: "Patrick", username: "PAkolo", email: "PAkolo@hotmail.com", password: "password")
 User.create(name: "Jane", username: "JDoe", email: "JDoe@hotmail.com", password: "password")
+
+Product.create(user_id: 1, name: "burger", price: 5, description: "beef patty, burns, cheese, pickle, ketchup")
