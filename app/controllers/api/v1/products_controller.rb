@@ -10,32 +10,51 @@ class Api::V1::ProductsController < ApplicationController
 
   # GET /products/1
   def show
-    render json: @product
+    serialedProduct = ProductSerializer.new(@product).serializable_hash.to_json
+
+    render json: serialedProduct
   end
 
   # POST /products
   def create
     @product = Product.new(product_params)
+    @user = current_user[:id]
+    @product.user_id = @user
+
 
     if @product.save
-      render json: @product, status: :created, location: @product
+      render json: ProductSerializer.new(@product).serializable_hash.to_json, status: :created
     else
-      render json: @product.errors, status: :unprocessable_entity
+      error_resp = {
+        error: @product.errors.full_message.to_sentence
+      }
+      render json: error_resp, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /products/1
   def update
     if @product.update(product_params)
-      render json: @product
+      serialedProduct = ProductSerializer.new(@product).serializable_hash.to_json
+      render json: serialedProduct
     else
-      render json: @product.errors, status: :unprocessable_entity
+      error_resp = {
+        error: @product.errors.full_message.to_sentence
+      }
+      render json: error_resp, status: :unprocessable_entity
     end
   end
 
   # DELETE /products/1
   def destroy
-    @product.destroy
+    if @product.destroy
+      render json: {data: "Selected product was successfully deleted"}, status: :ok
+    else
+      error_resp = {
+        error: "Product not found"
+      }
+      render json: error_resp, status: :unprocessable_entity
+    end 
   end
 
   private
