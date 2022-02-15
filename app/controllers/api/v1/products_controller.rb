@@ -5,7 +5,9 @@ class Api::V1::ProductsController < ApplicationController
   def index
     @products = Product.all
 
-    render json: @products
+    serializedProducts = ProductSerializer.new(@products).serializable_hash.to_json
+    
+    render json: serializedProducts
   end
 
   # GET /products/1
